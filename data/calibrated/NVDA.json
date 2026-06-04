@@ -1,0 +1,11 @@
+{
+  "underlier": "NVDA",
+  "v0": 0.1225,
+  "kappa": 2.0,
+  "theta": 0.09,
+  "sigma": 0.5,
+  "rho": -0.7,
+  "rmse": 0.0,
+  "converged": true,
+  "n_points": 50
+}
