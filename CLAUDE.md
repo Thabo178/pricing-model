@@ -257,3 +257,19 @@ Install: `pip install -r requirements.txt`
 
 - Dashboard Phase 2 UI: worst-of underlier selector, correlation input, multi-asset pricing
 - GitHub repo for Ryan to fork and run on his Windows PC
+
+---
+
+## TODO — Dividend yield from ORATS /cores  (§11 pitfall)
+
+Currently all underliers use `q = 0.0` (zero dividend yield) in the Heston process.
+This biases the forward price and causes calibration to absorb the error into `rho`.
+
+**Fix when ready:**
+1. Add `live_dividend_yield(ticker)` to `pricer/orats.py` using the `/cores` endpoint.
+2. Store `q` in the calibrated JSON alongside the Heston params.
+3. Pass `q` through `generate_paths()` and `generate_paths_multi()` into the Heston process.
+4. Pass `q` into `calibrate_heston_orats()` so the forward prices used during calibration match.
+
+Matters most for: SPY (~1.3%), META, AMZN, WFC. Negligible for zero-dividend growth names.
+Reference: §11 — *"Pull divs from ORATS /cores; use continuous-div approximation."*
