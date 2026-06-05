@@ -1,5 +1,15 @@
 # Pricing Model — Claude Code Guide
 
+## Primary reference document
+
+All implementation decisions should align with the technical specification at:
+`/Users/thabomahlaha/Downloads/structured_note_pricing_model_guide.pdf`
+
+Read this document when making architectural decisions, adding new features, or
+resolving ambiguity about pricing logic, calibration, or validation thresholds.
+
+---
+
 ## Project purpose
 Phoenix autocallable structured note pricer built for client Ryan Hysmith.
 Supports single-underlier and worst-of-2 / worst-of-3 multi-asset structures.
