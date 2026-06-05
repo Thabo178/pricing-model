@@ -45,8 +45,12 @@ st.set_page_config(
 )
 
 st.markdown(
-    f"""
-<link rel="shortcut icon" type="image/png" href="data:image/png;base64,{_FAVICON}">
+    f'<link rel="shortcut icon" type="image/png" href="data:image/png;base64,{_FAVICON}">',
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
 <style>
 /* ── Global ── */
 html, body, [class*="css"] {
