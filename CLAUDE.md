@@ -6,7 +6,9 @@ Supports single-underlier and worst-of-2 / worst-of-3 multi-asset structures.
 Ryan runs the tool via the Streamlit dashboard (double-click `start.command` on Mac,
 `start.bat` on Windows) — no terminal interaction required.
 
-GitHub repo to be added for collaborative editing between the developer (Mac) and Ryan (Windows).
+GitHub repo: https://github.com/Thabo178/pricing-model
+Collaborative editing between the developer (Mac) and Ryan (Windows).
+Ryan can fork the repo and clone it to his Windows PC.
 
 ---
 
