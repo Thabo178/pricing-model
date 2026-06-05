@@ -13,7 +13,7 @@ import pandas as pd
 import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Page config + custom CSS (formal white theme)
+# Page config + custom CSS
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
@@ -24,37 +24,46 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* ── Global typography & background ── */
+/* ── Global ── */
 html, body, [class*="css"] {
     font-family: 'Inter', 'Segoe UI', sans-serif;
     background-color: #ffffff;
     color: #1a1a2e;
+    font-size: 15px;
 }
 
-/* ── App header ── */
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-    max-width: 1280px;
+/* ── Shrink page margins ── */
+.main .block-container {
+    padding: 0.75rem 2rem 1rem;
+    max-width: 100%;
+}
+
+/* ── Tighten vertical spacing between widgets ── */
+.stVerticalBlock > div {
+    gap: 0.35rem;
+}
+div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div {
+    gap: 0.35rem;
 }
 
 /* ── Tab bar ── */
 [data-baseweb="tab-list"] {
     border-bottom: 2px solid #e2e8f0;
     gap: 0;
+    margin-bottom: 0.75rem;
 }
 [data-baseweb="tab"] {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #64748b;
-    padding: 0.65rem 1.25rem;
+    padding: 0.5rem 1.1rem;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
 }
 [aria-selected="true"][data-baseweb="tab"] {
     color: #1e3a5f;
     border-bottom-color: #1e3a5f;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* ── Metric cards ── */
@@ -62,17 +71,17 @@ html, body, [class*="css"] {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 1rem 1.25rem;
+    padding: 0.7rem 1rem;
 }
-[data-testid="stMetricLabel"] {
-    font-size: 0.75rem;
+[data-testid="stMetricLabel"] p {
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: #64748b;
 }
 [data-testid="stMetricValue"] {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 700;
     color: #1e3a5f;
 }
@@ -84,54 +93,79 @@ html, body, [class*="css"] {
     border-radius: 6px !important;
     font-weight: 600 !important;
     letter-spacing: 0.02em;
+    font-size: 0.9rem !important;
 }
 [kind="primary"] button:hover {
     background-color: #2d5282 !important;
 }
 
-/* ── Section dividers ── */
+/* ── Dividers ── */
 hr {
     border: none;
     border-top: 1px solid #e2e8f0;
-    margin: 1.25rem 0;
+    margin: 0.6rem 0;
 }
 
-/* ── Dataframe / table ── */
+/* ── Dataframes ── */
 [data-testid="stDataFrame"] {
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
     border: 1px solid #e2e8f0;
 }
 
-/* ── Subheaders ── */
-h2, h3 {
-    color: #1e3a5f;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-}
+/* ── Headings ── */
+h1 { font-size: 1.5rem !important; margin-bottom: 0 !important; }
+h2 { font-size: 1.15rem !important; color: #1e3a5f; font-weight: 700; margin: 0.4rem 0 0.2rem; }
+h3 { font-size: 1rem !important; color: #1e3a5f; font-weight: 700; margin: 0.3rem 0 0.1rem; }
+h4, h5 { font-size: 0.9rem !important; color: #1e3a5f; font-weight: 700; margin: 0.3rem 0 0.1rem; }
 
-/* ── Caption text ── */
-small, [data-testid="stCaptionContainer"] {
-    color: #64748b;
-    font-size: 0.8rem;
-}
-
-/* ── Input labels ── */
+/* ── Widget labels ── */
 [data-testid="stWidgetLabel"] p {
-    font-size: 0.8125rem;
+    font-size: 0.85rem;
     font-weight: 500;
     color: #374151;
 }
 
-/* ── Info / warning boxes ── */
+/* ── Smaller select/input boxes ── */
+[data-baseweb="input"] input,
+[data-baseweb="select"] div {
+    font-size: 0.875rem !important;
+}
+
+/* ── Captions ── */
+[data-testid="stCaptionContainer"] p {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+/* ── Info / alert boxes ── */
 [data-testid="stAlert"] {
-    border-radius: 8px;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
 }
 
 /* ── Expanders ── */
 [data-testid="stExpander"] summary {
     font-weight: 600;
+    font-size: 0.88rem;
     color: #1e3a5f;
+}
+
+/* ── Vertical divider between input cols and results ── */
+.results-panel {
+    border-left: 1px solid #e2e8f0;
+    padding-left: 1.5rem;
+}
+
+/* ── Section label ── */
+.section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    margin-bottom: 0.2rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -220,109 +254,108 @@ def _build_wo_note_dict(
 def _recommendation_badge(rec: str) -> str:
     colour = {"Buy": "#16a34a", "Skip": "#dc2626", "Gray Zone": "#d97706"}.get(rec, "#64748b")
     return (
-        f'<span style="background:{colour};color:#fff;padding:4px 12px;'
-        f'border-radius:4px;font-weight:700;font-size:0.9rem;">{rec}</span>'
+        f'<span style="background:{colour};color:#fff;padding:4px 14px;'
+        f'border-radius:4px;font-weight:700;font-size:1rem;">{rec}</span>'
     )
 
 
-def _flag_colour(flag: str) -> str:
-    return {"OK": "#16a34a", "Review": "#d97706", "Flag ⚠": "#dc2626",
-            "N/A": "#64748b", "ERROR": "#dc2626"}.get(flag, "#64748b")
+def _label(text):
+    st.markdown(f'<p class="section-label">{text}</p>', unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
 # Header
 # ---------------------------------------------------------------------------
 
-col_hdr, col_logo = st.columns([4, 1])
-with col_hdr:
-    st.markdown(
-        "<h1 style='color:#1e3a5f;margin-bottom:0;font-size:1.75rem;"
-        "font-weight:800;letter-spacing:-0.02em;'>"
-        "Structured Note Pricer</h1>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<p style='color:#64748b;margin-top:0.2rem;font-size:0.875rem;'>"
-        "Phoenix Autocallable &nbsp;·&nbsp; Single-Asset &amp; Worst-Of Basket &nbsp;·&nbsp; "
-        "Heston Stochastic Volatility &nbsp;·&nbsp; ORATS Live Data</p>",
-        unsafe_allow_html=True,
-    )
-
-st.markdown("<hr style='margin:0.5rem 0 1.5rem;'>", unsafe_allow_html=True)
+st.markdown(
+    "<h1 style='color:#1e3a5f;font-weight:800;letter-spacing:-0.02em;'>"
+    "Structured Note Pricer</h1>"
+    "<p style='color:#94a3b8;font-size:0.82rem;margin-top:-0.1rem;margin-bottom:0.5rem;'>"
+    "Phoenix Autocallable &nbsp;·&nbsp; Single-Asset &amp; Worst-Of &nbsp;·&nbsp; "
+    "Heston Stochastic Volatility &nbsp;·&nbsp; ORATS Live Data</p>",
+    unsafe_allow_html=True,
+)
 
 tab_price, tab_vol, tab_cal, tab_wo, tab_port, tab_offer = st.tabs([
-    "Note Pricer",
-    "Vol Surface",
-    "Calibration",
-    "Worst-Of Pricer",
-    "Portfolio",
-    "Offering Evaluator",
+    "Note Pricer", "Vol Surface", "Calibration",
+    "Worst-Of Pricer", "Portfolio", "Offering Evaluator",
 ])
 
 # ===========================================================================
-# TAB 1 — NOTE PRICER  (single underlier)
+# TAB 1 — NOTE PRICER
 # ===========================================================================
 
 with tab_price:
-    col_in, col_out = st.columns([1, 1.6])
+    col_a, col_b, col_out = st.columns([1, 1, 1.6])
 
-    with col_in:
-        st.markdown("#### Term Sheet")
+    # ── Column A: Underlier & dates ──────────────────────────────────────
+    with col_a:
+        _label("Underlier")
+        underlier = st.selectbox("Ticker", UNDERLIERS, key="p_underlier", label_visibility="collapsed")
 
-        underlier  = st.selectbox("Underlier", UNDERLIERS, key="p_underlier")
-        spot       = st.number_input(
-            "Spot Price ($)", min_value=1.0,
-            value=DEFAULT_SPOTS.get(underlier, 100.0),
-            step=0.01, format="%.2f", key=f"p_spot_{underlier}",
-        )
-        face_value = st.number_input("Face Value ($)", min_value=100.0,
-                                     value=1000.0, step=100.0, key="p_face")
+        sp_c1, sp_c2 = st.columns(2)
+        with sp_c1:
+            spot = st.number_input("Spot ($)", min_value=1.0,
+                                   value=DEFAULT_SPOTS.get(underlier, 100.0),
+                                   step=0.01, format="%.2f", key=f"p_spot_{underlier}")
+        with sp_c2:
+            face_value = st.number_input("Face Value ($)", min_value=100.0,
+                                         value=1000.0, step=100.0, key="p_face")
 
-        st.divider()
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Schedule")
 
-        issue_date    = st.date_input("Issue Date",    value=date(2026, 6, 3),  key="p_issue")
-        maturity_date = st.date_input("Maturity Date", value=date(2027, 12, 3), key="p_mat")
-        obs_freq      = st.selectbox("Observation Frequency",
-                                     ["Quarterly", "Monthly", "Semi-Annual"], key="p_freq")
+        d1, d2 = st.columns(2)
+        with d1:
+            issue_date = st.date_input("Issue Date", value=date(2026, 6, 3), key="p_issue")
+        with d2:
+            maturity_date = st.date_input("Maturity Date", value=date(2027, 12, 3), key="p_mat")
 
-        st.divider()
-        st.markdown("#### Barrier Structure")
+        obs_freq = st.selectbox("Observation Frequency",
+                                ["Quarterly", "Monthly", "Semi-Annual"], key="p_freq")
 
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Model Settings")
+
+        m1, m2 = st.columns(2)
+        with m1:
+            memory_on = st.checkbox("Memory Coupon", value=False, key="p_memory",
+                                    help="Unpaid coupons accrue and are paid at the next qualifying observation.")
+        with m2:
+            n_paths = st.select_slider("MC Paths", options=[10_000, 50_000, 100_000],
+                                       value=50_000, format_func=lambda x: f"{x:,}", key="p_npaths")
+
+    # ── Column B: Barriers & rates ───────────────────────────────────────
+    with col_b:
+        _label("Barrier Structure")
         autocall_pct = st.slider("Autocall Barrier", 80, 115, 100, step=5, format="%d%%", key="p_autocall")
         coupon_pct   = st.slider("Coupon Barrier",   50,  95,  75, step=5, format="%d%%", key="p_coupon")
         knockin_pct  = st.slider("Knock-In Barrier", 40,  80,  65, step=5, format="%d%%", key="p_knockin")
 
-        st.divider()
-        st.markdown("#### Rates & Model")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Rates")
 
-        coupon_rate        = st.number_input("Annual Coupon (%)", min_value=0.0,
-                                              max_value=50.0, value=12.0, step=0.5, key="p_cpn")
-        rfr                = st.number_input("Risk-Free Rate (%)", min_value=0.0,
-                                              max_value=20.0, value=3.75, step=0.25, key="p_rfr")
-        credit_spread_bps  = st.number_input(
-            "Issuer Credit Spread (bps)",
-            min_value=0, max_value=500, value=0, step=5,
-            help="§6.1 — Treasury + CDS spread. Adds to discount rate. "
-                 "Typical A-rated issuer: 50–150 bps. Fair value drops by ~100–300 bps.",
+        r1, r2 = st.columns(2)
+        with r1:
+            coupon_rate = st.number_input("Annual Coupon (%)", min_value=0.0,
+                                          max_value=50.0, value=12.0, step=0.5, key="p_cpn")
+        with r2:
+            rfr = st.number_input("Risk-Free Rate (%)", min_value=0.0,
+                                   max_value=20.0, value=3.75, step=0.25, key="p_rfr")
+
+        credit_spread_bps = st.number_input(
+            "Issuer Credit Spread (bps)", min_value=0, max_value=500, value=0, step=5,
+            help="§6.1 — Treasury + CDS spread. Added to discount rate. Typical A-rated issuer: 50–150 bps.",
             key="p_cs",
         )
-        memory_on = st.checkbox("Memory Coupon Feature", value=False, key="p_memory",
-                                help="Unpaid coupons from periods below the barrier accrue and "
-                                     "are paid in full at the next qualifying observation.")
-        n_paths   = st.select_slider(
-            "Monte Carlo Paths",
-            options=[10_000, 50_000, 100_000],
-            value=50_000,
-            format_func=lambda x: f"{x:,}",
-            key="p_npaths",
-        )
 
-        price_btn = st.button("Run Pricing", type="primary",
-                              use_container_width=True, key="p_btn")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        price_btn = st.button("Run Pricing", type="primary", use_container_width=True, key="p_btn")
 
+    # ── Column C: Results ────────────────────────────────────────────────
     with col_out:
-        st.markdown("#### Results")
+        st.markdown('<div class="results-panel">', unsafe_allow_html=True)
+        _label("Results")
 
         if price_btn:
             note_dict = _build_note_dict(
@@ -348,103 +381,72 @@ with tab_price:
             r = st.session_state["last_result"]
             n = st.session_state["last_note"]
 
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Fair Value (% of Face)", f"{r['npv_pct']:.2f}%")
-            m2.metric("Fair Value per $1,000",  f"${r['npv_dollar']:,.2f}")
-            m3.metric("MC Std Error", f"±{r['se_bps']:.1f} bps",
-                      help="1σ standard error. 2σ band = ±" +
-                           f"{r['se_bps']*2:.1f} bps. Target: < 30 bps for production.")
+            rm1, rm2, rm3 = st.columns(3)
+            rm1.metric("Fair Value", f"{r['npv_pct']:.2f}%")
+            rm2.metric("Dollar FV",  f"${r['npv_dollar']:,.2f}")
+            rm3.metric("MC Std Err", f"±{r['se_bps']:.1f} bps")
 
             if credit_spread_bps:
-                st.info(
-                    f"Credit spread of {credit_spread_bps} bps applied to discount curve. "
-                    "Fair value reflects funding advantage embedded in issuer pricing.",
-                    icon="ℹ️",
-                )
+                st.info(f"Credit spread of {credit_spread_bps} bps applied to discount curve (§6.1).", icon="ℹ️")
 
-            st.divider()
-
-            # ── Greeks ──────────────────────────────────────────────────────
-            with st.expander("Greeks (bump-and-reprice · §6.3)", expanded=False):
-                g_paths = st.select_slider(
-                    "Paths for Greeks",
-                    options=[10_000, 20_000, 30_000],
-                    value=20_000,
-                    format_func=lambda x: f"{x:,}",
-                    key="p_g_paths",
-                )
-                greeks_btn = st.button("Compute Greeks", key="p_greeks_btn")
-                if greeks_btn:
+            with st.expander("Greeks  (§6.3)", expanded=False):
+                g_paths = st.select_slider("Paths for Greeks",
+                                           options=[10_000, 20_000, 30_000], value=20_000,
+                                           format_func=lambda x: f"{x:,}", key="p_g_paths")
+                if st.button("Compute Greeks", key="p_greeks_btn"):
                     with st.spinner("Computing Greeks (5 reprice calls) …"):
                         try:
                             from pricer.greeks import compute_greeks
-                            g = compute_greeks(n, n_paths=g_paths)
-                            st.session_state["last_greeks"] = g
+                            st.session_state["last_greeks"] = compute_greeks(n, n_paths=g_paths)
                         except Exception as e:
                             st.error(f"Greeks failed: {e}")
 
                 if "last_greeks" in st.session_state:
                     g = st.session_state["last_greeks"]
                     gc1, gc2, gc3, gc4 = st.columns(4)
-                    gc1.metric("Delta (% face / 1% spot)",
-                               f"{g['delta_pct']:+.3f}%",
-                               help="Change in fair value (% of face) per 1% move in spot.")
-                    gc2.metric("Delta ($ / $1 spot)",
-                               f"${g['delta_dollar']:+.4f}",
-                               help="Dollar sensitivity per $1 move in the underlying.")
-                    gc3.metric("Vega (% face / 1 vol pt)",
-                               f"{g['vega_pct']:+.3f}%",
-                               help="Change in fair value per 1 percentage-point (0.01) "
-                                    "move in annualised vol.")
-                    gc4.metric("Theta ($ / day)",
-                               f"${g['theta_dollar']:+.4f}",
-                               help="Change in dollar fair value per calendar day. "
-                                    "Typically negative (time decay).")
-                    st.caption(
-                        f"Gamma: ${g['gamma_dollar']:+.6f} per $1² spot move  ·  "
-                        "All Greeks computed via ±1% central-difference bump-and-reprice."
-                    )
+                    gc1.metric("Δ (% / 1% spot)", f"{g['delta_pct']:+.3f}%")
+                    gc2.metric("Δ ($ / $1 spot)", f"${g['delta_dollar']:+.4f}")
+                    gc3.metric("ν (% / 1 vol pt)", f"{g['vega_pct']:+.3f}%")
+                    gc4.metric("Θ ($ / day)",      f"${g['theta_dollar']:+.4f}")
+                    st.caption(f"Gamma: ${g['gamma_dollar']:+.6f} per $1² · ±1% central-difference")
 
-            st.divider()
-            st.markdown("##### Term Sheet Summary")
+            st.markdown("<hr>", unsafe_allow_html=True)
+            _label("Term Sheet Summary")
 
             obs = n["observation_dates"]
             cs  = n.get("credit_spread", 0)
             summary = {
                 "Underlier":          n["underlier"],
-                "Spot":               f"${n['spot']:,.2f}",
-                "Face Value":         f"${n['face_value']:,.0f}",
-                "Issue Date":         n["issue_date"],
-                "Maturity Date":      n["maturity_date"],
-                "Observation Dates":  f"{len(obs)} dates  ({obs[0]} → {obs[-1]})",
-                "Autocall Barrier":   f"{n['autocall_barrier']*100:.0f}% of spot",
-                "Coupon Barrier":     f"{n['coupon_barrier']*100:.0f}% of spot",
-                "Knock-In Barrier":   f"{n['knockin_barrier']*100:.0f}% of spot",
-                "Annual Coupon":      f"{n['coupon_rate']*100:.2f}%",
-                "Risk-Free Rate":     f"{n['risk_free_rate']*100:.3f}%",
+                "Spot / Face":        f"${n['spot']:,.2f}  /  ${n['face_value']:,.0f}",
+                "Dates":              f"{n['issue_date']} → {n['maturity_date']}",
+                "Observations":       f"{len(obs)} ({obs[0]} → {obs[-1]})",
+                "Autocall / Coupon / KI": (
+                    f"{n['autocall_barrier']*100:.0f}%  /  "
+                    f"{n['coupon_barrier']*100:.0f}%  /  "
+                    f"{n['knockin_barrier']*100:.0f}%"
+                ),
+                "Coupon / RFR":       f"{n['coupon_rate']*100:.2f}%  /  {n['risk_free_rate']*100:.3f}%",
                 "Credit Spread":      f"{cs*10000:.0f} bps" if cs else "None",
                 "Memory Coupon":      "Yes" if n.get('memory') else "No",
                 "MC Paths":           f"{r['n_paths']:,}",
             }
-            st.dataframe(
-                pd.DataFrame.from_dict(summary, orient="index", columns=["Value"]),
-                use_container_width=True,
-            )
-
+            st.dataframe(pd.DataFrame.from_dict(summary, orient="index", columns=["Value"]),
+                         use_container_width=True)
         else:
-            st.info("Configure the term sheet on the left and click **Run Pricing**.")
+            st.info("Configure the term sheet in the columns on the left, then click **Run Pricing**.")
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ===========================================================================
 # TAB 2 — VOL SURFACE
 # ===========================================================================
 
 with tab_vol:
-    st.markdown("#### ORATS Live Vol Surface")
-
-    col_v1, col_v2 = st.columns([0.28, 0.72])
+    col_v1, col_v2 = st.columns([0.22, 0.78])
 
     with col_v1:
-        vol_ticker = st.selectbox("Ticker", UNDERLIERS, key="v_ticker")
+        _label("Ticker")
+        vol_ticker = st.selectbox("Ticker", UNDERLIERS, key="v_ticker", label_visibility="collapsed")
         fetch_btn  = st.button("Fetch from ORATS", type="primary",
                                key="v_fetch", use_container_width=True)
 
@@ -466,34 +468,30 @@ with tab_vol:
             if not smv.empty:
                 row = smv.iloc[0]
                 s1, s2, s3, s4 = st.columns(4)
-                s1.metric("Spot",       f"${float(row.get('stockPrice', 0)):,.2f}")
-                s2.metric("30d ATM IV", f"{float(row.get('iv30d', 0))*100:.1f}%")
-                s3.metric("Skew (30d)", f"{float(row.get('rSlp30', 0)):.3f}")
+                s1.metric("Spot",         f"${float(row.get('stockPrice', 0)):,.2f}")
+                s2.metric("30d ATM IV",   f"{float(row.get('iv30d', 0))*100:.1f}%")
+                s3.metric("Skew (30d)",   f"{float(row.get('rSlp30', 0)):.3f}")
                 s4.metric("Implied Move", f"{float(row.get('impliedMove', 0))*100:.1f}%")
 
-            st.divider()
+            st.markdown("<hr>", unsafe_allow_html=True)
 
             want = ["expirDate", "atmiv", "slope", "vol25", "vol50", "vol75", "vol5"]
             show = [c for c in want if c in df.columns]
             disp = df[show].copy()
             disp.rename(columns={
                 "expirDate": "Expiry", "atmiv": "ATM IV", "slope": "Skew",
-                "vol25": "25Δ IV",    "vol50": "50Δ IV",  "vol75": "75Δ IV",
-                "vol5":  "5Δ IV",
+                "vol25": "25Δ IV", "vol50": "50Δ IV", "vol75": "75Δ IV", "vol5": "5Δ IV",
             }, inplace=True)
             for col in ["ATM IV", "25Δ IV", "50Δ IV", "75Δ IV", "5Δ IV"]:
                 if col in disp.columns:
                     disp[col] = (disp[col].astype(float) * 100).round(2).astype(str) + "%"
-
             st.dataframe(disp, use_container_width=True, hide_index=True)
 
             if "expirDate" in df.columns and "atmiv" in df.columns:
                 chart_df = df[["expirDate", "atmiv"]].copy()
                 chart_df["ATM IV (%)"] = chart_df["atmiv"].astype(float) * 100
-                chart_df = chart_df.set_index("expirDate")[["ATM IV (%)"]]
-                st.line_chart(chart_df, use_container_width=True)
+                st.line_chart(chart_df.set_index("expirDate")[["ATM IV (%)"]], use_container_width=True)
                 st.caption("ATM Implied Volatility (%) by Expiry — source: ORATS /monies/implied")
-
         else:
             st.info("Select a ticker and click **Fetch from ORATS** to load the live vol surface.")
 
@@ -502,39 +500,38 @@ with tab_vol:
 # ===========================================================================
 
 with tab_cal:
-    st.markdown("#### Heston Parameter Calibration")
-
-    col_c1, col_c2 = st.columns([0.35, 0.65])
+    col_c1, col_c2 = st.columns([0.32, 0.68])
 
     with col_c1:
-        cal_ticker = st.selectbox("Ticker", UNDERLIERS, key="c_ticker")
-        cal_spot   = st.number_input(
-            "Spot ($)", value=float(DEFAULT_SPOTS.get(cal_ticker, 100.0)),
-            min_value=1.0, step=1.0, key=f"c_spot_{cal_ticker}",
-        )
-        cal_rfr   = st.number_input("Risk-Free Rate (%)", value=3.75, step=0.25, key="c_rfr")
+        _label("Underlier")
+        cal_ticker = st.selectbox("Ticker", UNDERLIERS, key="c_ticker", label_visibility="collapsed")
+
+        cc1, cc2 = st.columns(2)
+        with cc1:
+            cal_spot = st.number_input("Spot ($)", value=float(DEFAULT_SPOTS.get(cal_ticker, 100.0)),
+                                       min_value=1.0, step=1.0, key=f"c_spot_{cal_ticker}")
+        with cc2:
+            cal_rfr = st.number_input("RFR (%)", value=3.75, step=0.25, key="c_rfr")
+
         use_orats = st.checkbox("Use live ORATS surface", value=True, key="c_orats")
         if not use_orats:
-            st.caption("Mock mode: calibrates to a synthetic surface. RMSE will be ~0.")
-        cal_btn = st.button("Run Calibration", type="primary",
-                            use_container_width=True, key="c_btn")
+            st.caption("Mock mode — calibrates to a synthetic surface (RMSE ≈ 0).")
 
-        st.divider()
+        cal_btn = st.button("Run Calibration", type="primary", use_container_width=True, key="c_btn")
+
+        st.markdown("<hr>", unsafe_allow_html=True)
         st.caption(
-            "Calibration uses Differential Evolution (global) followed by "
-            "L-BFGS-B refinement (§8.1). Bounds: κ [0.5,8] · θ [0.01,0.5] · "
-            "σ [0.1,2.5] · ρ [−0.95,−0.1] · v₀ [0.01,0.6]."
+            "DE global search → L-BFGS-B polish (§8.1).  \n"
+            "Bounds: κ [0.5,8] · θ [0.01,0.5] · σ [0.1,2.5] · ρ [−0.95,−0.1] · v₀ [0.01,0.6]"
         )
 
     with col_c2:
         if cal_btn:
-            source = "ORATS" if use_orats else "mock surface"
-            with st.spinner(f"Calibrating {cal_ticker} via {source} …"):
+            with st.spinner(f"Calibrating {cal_ticker} …"):
                 try:
                     import QuantLib as ql
                     today = ql.Date.todaysDate()
                     rfr   = cal_rfr / 100.0
-
                     if use_orats:
                         from pricer.orats import build_calibration_set, live_spot
                         from pricer.calibration import calibrate_heston_orats, save_calibrated
@@ -544,37 +541,31 @@ with tab_cal:
                             spot = cal_spot
                         cal_set = build_calibration_set(cal_ticker, today, spot, r=rfr)
                         if not cal_set:
-                            st.error(f"No ORATS surface data available for {cal_ticker}.")
+                            st.error(f"No ORATS data for {cal_ticker}.")
                         else:
                             result = calibrate_heston_orats(cal_ticker, today, spot, rfr, cal_set)
                             save_calibrated(result)
                             st.session_state["cal_result"]    = result
                             st.session_state["cal_live_spot"] = spot
                     else:
-                        from pricer.calibration import (
-                            generate_mock_surface, calibrate_heston, save_calibrated,
-                        )
+                        from pricer.calibration import generate_mock_surface, calibrate_heston, save_calibrated
                         surface = generate_mock_surface(cal_ticker, cal_spot, rfr, today=today)
                         result  = calibrate_heston(cal_ticker, cal_spot, rfr, surface, today=today)
                         save_calibrated(result)
                         st.session_state["cal_result"] = result
                         st.session_state.pop("cal_live_spot", None)
-
                 except Exception as e:
                     st.error(f"Calibration failed: {e}")
 
         if "cal_result" in st.session_state:
             r = st.session_state["cal_result"]
-
-            live_s = st.session_state.get("cal_live_spot")
-            if live_s:
-                st.caption(f"Live spot from ORATS: **${live_s:,.2f}**")
+            if st.session_state.get("cal_live_spot"):
+                st.caption(f"Live spot from ORATS: **${st.session_state['cal_live_spot']:,.2f}**")
 
             feller_ok = r.get("feller_satisfied", True)
             if not feller_ok:
                 st.warning(
-                    f"Feller condition violated: 2κθ = {2*r['kappa']*r['theta']:.4f} "
-                    f"< σ² = {r['sigma']**2:.4f}. Variance may approach zero. "
+                    f"Feller condition violated: 2κθ = {2*r['kappa']*r['theta']:.4f} < σ² = {r['sigma']**2:.4f}. "
                     "Full-truncation MC handles this numerically — result is still valid. (§8.2)",
                     icon="⚠️",
                 )
@@ -585,172 +576,145 @@ with tab_cal:
             m3.metric("IV Points", str(r["n_points"]))
             m4.metric("Feller",    "Satisfied" if feller_ok else "Violated")
 
-            st.divider()
-            st.markdown("##### Calibrated Parameters")
+            st.markdown("<hr>", unsafe_allow_html=True)
+            _label("Calibrated Parameters")
 
             params = {
-                "v₀  (initial variance)":         f"{r['v0']:.6f}",
-                "κ   (mean-reversion speed)":      f"{r['kappa']:.6f}",
-                "θ   (long-run variance)":         f"{r['theta']:.6f}",
-                "σ   (vol of vol)":                f"{r['sigma']:.6f}",
-                "ρ   (asset / variance corr.)":    f"{r['rho']:.6f}",
+                "v₀  (initial variance)":      f"{r['v0']:.6f}",
+                "κ   (mean-reversion speed)":  f"{r['kappa']:.6f}",
+                "θ   (long-run variance)":     f"{r['theta']:.6f}",
+                "σ   (vol of vol)":            f"{r['sigma']:.6f}",
+                "ρ   (asset / vol corr.)":     f"{r['rho']:.6f}",
             }
-            st.dataframe(
-                pd.DataFrame.from_dict(params, orient="index", columns=["Value"]),
-                use_container_width=True,
-            )
-            st.caption(
-                f"Calibrated to {r['n_points']} surface points  ·  "
-                f"Saved → data/calibrated/{r['underlier']}.json"
-            )
-
+            st.dataframe(pd.DataFrame.from_dict(params, orient="index", columns=["Value"]),
+                         use_container_width=True)
+            st.caption(f"Saved → data/calibrated/{r['underlier']}.json")
         else:
-            st.info("Select a ticker and click **Run Calibration** to fit Heston parameters.")
+            st.info("Select a ticker and click **Run Calibration**.")
 
 # ===========================================================================
 # TAB 4 — WORST-OF PRICER
 # ===========================================================================
 
 with tab_wo:
-    st.markdown("#### Worst-Of Basket Pricer")
-    st.caption(
-        "Phoenix autocallable on a 2- or 3-underlier basket. "
-        "All barrier checks apply to the worst-performing stock at each observation date."
-    )
+    col_wa, col_wb, col_wout = st.columns([1, 1, 1.6])
 
-    col_wo_in, col_wo_out = st.columns([1, 1.6])
+    # ── Column A: Basket & correlations ─────────────────────────────────
+    with col_wa:
+        _label("Basket")
+        n_assets = st.radio("Size", [2, 3], horizontal=True, key="wo_n",
+                            format_func=lambda x: f"{x} Underliers")
 
-    with col_wo_in:
-        n_assets = st.radio(
-            "Basket Size", [2, 3], horizontal=True, key="wo_n",
-            format_func=lambda x: f"{x} Underliers",
-        )
+        wa1, wa2 = st.columns(2)
+        with wa1:
+            wo_t1 = st.selectbox("Underlier 1", UNDERLIERS, index=0, key="wo_t1")
+        with wa2:
+            wo_s1 = st.number_input("Spot 1 ($)", value=float(DEFAULT_SPOTS[wo_t1]),
+                                    min_value=1.0, step=0.01, format="%.2f", key=f"wo_s1_{wo_t1}")
 
-        st.markdown("#### Basket Components")
-
-        wo_t1 = st.selectbox("Underlier 1", UNDERLIERS, index=0, key="wo_t1")
-        wo_s1 = st.number_input(
-            "Spot 1 ($)", value=float(DEFAULT_SPOTS[wo_t1]),
-            min_value=1.0, step=0.01, format="%.2f", key=f"wo_s1_{wo_t1}",
-        )
-
-        wo_t2 = st.selectbox("Underlier 2", UNDERLIERS, index=1, key="wo_t2")
-        wo_s2 = st.number_input(
-            "Spot 2 ($)", value=float(DEFAULT_SPOTS[wo_t2]),
-            min_value=1.0, step=0.01, format="%.2f", key=f"wo_s2_{wo_t2}",
-        )
+        wb1, wb2 = st.columns(2)
+        with wb1:
+            wo_t2 = st.selectbox("Underlier 2", UNDERLIERS, index=1, key="wo_t2")
+        with wb2:
+            wo_s2 = st.number_input("Spot 2 ($)", value=float(DEFAULT_SPOTS[wo_t2]),
+                                    min_value=1.0, step=0.01, format="%.2f", key=f"wo_s2_{wo_t2}")
 
         wo_t3, wo_s3 = None, None
         if n_assets == 3:
-            wo_t3 = st.selectbox("Underlier 3", UNDERLIERS, index=2, key="wo_t3")
-            wo_s3 = st.number_input(
-                "Spot 3 ($)", value=float(DEFAULT_SPOTS[wo_t3]),
-                min_value=1.0, step=0.01, format="%.2f", key=f"wo_s3_{wo_t3}",
-            )
+            wc1, wc2 = st.columns(2)
+            with wc1:
+                wo_t3 = st.selectbox("Underlier 3", UNDERLIERS, index=2, key="wo_t3")
+            with wc2:
+                wo_s3 = st.number_input("Spot 3 ($)", value=float(DEFAULT_SPOTS[wo_t3]),
+                                        min_value=1.0, step=0.01, format="%.2f", key=f"wo_s3_{wo_t3}")
 
-        st.divider()
-        st.markdown("#### Pairwise Correlations")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Correlations")
 
-        rho_12 = st.slider(
-            f"ρ  ({wo_t1} / {wo_t2})",
-            min_value=-0.99, max_value=0.99, value=0.55, step=0.01, key="wo_r12",
-        )
+        rho_12 = st.slider(f"ρ  {wo_t1}/{wo_t2}", -0.99, 0.99, 0.55, step=0.01, key="wo_r12")
         rho_13, rho_23 = 0.0, 0.0
         if n_assets == 3:
-            rho_13 = st.slider(
-                f"ρ  ({wo_t1} / {wo_t3})",
-                min_value=-0.99, max_value=0.99, value=0.50, step=0.01, key="wo_r13",
-            )
-            rho_23 = st.slider(
-                f"ρ  ({wo_t2} / {wo_t3})",
-                min_value=-0.99, max_value=0.99, value=0.50, step=0.01, key="wo_r23",
-            )
-            st.caption("Correlation matrix is projected to PSD before simulation.")
+            rho_13 = st.slider(f"ρ  {wo_t1}/{wo_t3}", -0.99, 0.99, 0.50, step=0.01, key="wo_r13")
+            rho_23 = st.slider(f"ρ  {wo_t2}/{wo_t3}", -0.99, 0.99, 0.50, step=0.01, key="wo_r23")
+            st.caption("Automatically projected to PSD before simulation.")
 
-        st.divider()
-        st.markdown("#### Note Parameters")
+    # ── Column B: Note parameters ────────────────────────────────────────
+    with col_wb:
+        _label("Note Parameters")
 
-        wo_face  = st.number_input("Face Value ($)", min_value=100.0, value=1000.0,
-                                    step=100.0, key="wo_face")
-        wo_issue = st.date_input("Issue Date",    value=date(2026, 6, 3),  key="wo_issue")
-        wo_mat   = st.date_input("Maturity Date", value=date(2027, 12, 3), key="wo_mat")
-        wo_freq  = st.selectbox("Observation Frequency",
-                                 ["Quarterly", "Monthly", "Semi-Annual"], key="wo_freq")
+        wd1, wd2 = st.columns(2)
+        with wd1:
+            wo_issue = st.date_input("Issue Date", value=date(2026, 6, 3), key="wo_issue")
+        with wd2:
+            wo_mat   = st.date_input("Maturity Date", value=date(2027, 12, 3), key="wo_mat")
 
-        st.divider()
+        we1, we2 = st.columns(2)
+        with we1:
+            wo_face = st.number_input("Face Value ($)", min_value=100.0,
+                                      value=1000.0, step=100.0, key="wo_face")
+        with we2:
+            wo_freq = st.selectbox("Frequency", ["Quarterly", "Monthly", "Semi-Annual"], key="wo_freq")
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Barrier Structure")
 
         wo_autocall = st.slider("Autocall Barrier", 80, 115, 100, step=5, format="%d%%", key="wo_autocall")
         wo_coupon   = st.slider("Coupon Barrier",   50,  95,  75, step=5, format="%d%%", key="wo_coupon")
         wo_knockin  = st.slider("Knock-In Barrier", 40,  80,  65, step=5, format="%d%%", key="wo_knockin")
 
-        st.divider()
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Rates & Model")
 
-        wo_cpn  = st.number_input("Annual Coupon (%)", min_value=0.0,
-                                   max_value=50.0, value=12.0, step=0.5, key="wo_cpn")
-        wo_rfr  = st.number_input("Risk-Free Rate (%)", min_value=0.0,
-                                   max_value=20.0, value=3.75, step=0.25, key="wo_rfr")
-        wo_cs   = st.number_input(
-            "Issuer Credit Spread (bps)", min_value=0, max_value=500, value=0,
-            step=5, key="wo_cs",
-            help="§6.1 — Adds to discount rate. Fair value drops by ~100–300 bps.",
-        )
-        wo_paths = st.select_slider(
-            "Monte Carlo Paths",
-            options=[10_000, 50_000, 100_000],
-            value=50_000,
-            format_func=lambda x: f"{x:,}",
-            key="wo_npaths",
-        )
+        wf1, wf2 = st.columns(2)
+        with wf1:
+            wo_cpn = st.number_input("Coupon (%)", min_value=0.0, max_value=50.0,
+                                     value=12.0, step=0.5, key="wo_cpn")
+        with wf2:
+            wo_rfr = st.number_input("RFR (%)", min_value=0.0, max_value=20.0,
+                                     value=3.75, step=0.25, key="wo_rfr")
 
-        wo_btn = st.button("Price Worst-Of", type="primary",
-                           use_container_width=True, key="wo_btn")
+        wg1, wg2 = st.columns(2)
+        with wg1:
+            wo_cs = st.number_input("Credit Spread (bps)", min_value=0, max_value=500,
+                                    value=0, step=5, key="wo_cs")
+        with wg2:
+            wo_paths = st.select_slider("MC Paths", options=[10_000, 50_000, 100_000],
+                                        value=50_000, format_func=lambda x: f"{x:,}", key="wo_npaths")
 
-    with col_wo_out:
-        st.markdown("#### Results")
+        wo_btn = st.button("Price Worst-Of", type="primary", use_container_width=True, key="wo_btn")
+
+    # ── Column C: Results ────────────────────────────────────────────────
+    with col_wout:
+        st.markdown('<div class="results-panel">', unsafe_allow_html=True)
+        _label("Results")
 
         if wo_btn:
             if n_assets == 2:
-                tickers = [wo_t1, wo_t2]
-                spots   = [wo_s1, wo_s2]
-                corr    = [[1.0, rho_12], [rho_12, 1.0]]
+                tickers = [wo_t1, wo_t2]; spots = [wo_s1, wo_s2]
+                corr = [[1.0, rho_12], [rho_12, 1.0]]
             else:
-                tickers = [wo_t1, wo_t2, wo_t3]
-                spots   = [wo_s1, wo_s2, wo_s3]
-                corr    = [
-                    [1.0,    rho_12, rho_13],
-                    [rho_12, 1.0,    rho_23],
-                    [rho_13, rho_23, 1.0   ],
-                ]
+                tickers = [wo_t1, wo_t2, wo_t3]; spots = [wo_s1, wo_s2, wo_s3]
+                corr = [[1.0, rho_12, rho_13], [rho_12, 1.0, rho_23], [rho_13, rho_23, 1.0]]
 
             wo_note = _build_wo_note_dict(
                 tickers, spots, corr, wo_face, wo_issue, wo_mat,
                 wo_freq, wo_autocall, wo_coupon, wo_knockin, wo_cpn, wo_rfr,
                 credit_spread_bps=wo_cs,
             )
-
             if not wo_note["observation_dates"]:
-                st.error("No observation dates — check that Maturity Date is after Issue Date.")
+                st.error("No observation dates — check Maturity Date is after Issue Date.")
             else:
-                basket_label = " / ".join(tickers)
-                with st.spinner(
-                    f"Pricing {basket_label} worst-of · {wo_paths:,} paths …"
-                ):
+                with st.spinner(f"Pricing {' / '.join(tickers)} worst-of · {wo_paths:,} paths …"):
                     try:
                         from pricer.pricer import price_worst_of, price_note_dict
-
                         wo_result = price_worst_of(wo_note, n_paths=wo_paths)
-
-                        singles = []
                         base = {k: v for k, v in wo_note.items()
                                 if k not in ("underliers", "spots", "correlation_matrix")}
-                        for ticker, s in zip(tickers, spots):
-                            sn = {**base, "underlier": ticker, "spot": s}
-                            singles.append(price_note_dict(sn, n_paths=wo_paths))
-
+                        singles = [price_note_dict({**base, "underlier": t, "spot": s}, n_paths=wo_paths)
+                                   for t, s in zip(tickers, spots)]
                         st.session_state["wo_result"]  = wo_result
                         st.session_state["wo_note"]    = wo_note
                         st.session_state["wo_singles"] = singles
-
                     except Exception as e:
                         st.error(f"Pricing failed: {e}")
                         st.session_state.pop("wo_result", None)
@@ -760,117 +724,69 @@ with tab_wo:
             wo_n    = st.session_state["wo_note"]
             singles = st.session_state["wo_singles"]
 
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Worst-Of Fair Value",         f"{wo_r['npv_pct']:.2f}%")
-            m2.metric(f"Per ${wo_r['face_value']:,.0f} Face", f"${wo_r['npv_dollar']:,.2f}")
-            m3.metric("MC Std Error",                f"±{wo_r['se_bps']:.1f} bps")
+            wm1, wm2, wm3 = st.columns(3)
+            wm1.metric("Worst-Of FV",                  f"{wo_r['npv_pct']:.2f}%")
+            wm2.metric(f"Per ${wo_r['face_value']:,.0f}", f"${wo_r['npv_dollar']:,.2f}")
+            wm3.metric("MC Std Err",                   f"±{wo_r['se_bps']:.1f} bps")
 
-            st.divider()
-            st.markdown("##### Single vs. Worst-Of Comparison")
+            st.markdown("<hr>", unsafe_allow_html=True)
+            _label("Single vs. Worst-Of Comparison")
 
-            comp_rows = []
-            for s in singles:
-                comp_rows.append({
-                    "Structure":  f"{s['underlier']} (single-underlier)",
-                    "Fair Value":  f"{s['npv_pct']:.2f}%",
-                    "Dollar FV":  f"${s['npv_dollar']:,.2f}",
-                })
-            comp_rows.append({
-                "Structure": f"Worst-Of Basket  ({' / '.join(wo_n['underliers'])})",
-                "Fair Value": f"{wo_r['npv_pct']:.2f}%",
-                "Dollar FV":  f"${wo_r['npv_dollar']:,.2f}",
-            })
+            comp_rows = [{"Structure": f"{s['underlier']} (single)",
+                          "Fair Value": f"{s['npv_pct']:.2f}%",
+                          "Dollar FV":  f"${s['npv_dollar']:,.2f}"} for s in singles]
+            comp_rows.append({"Structure": f"Worst-Of  ({' / '.join(wo_n['underliers'])})",
+                               "Fair Value": f"{wo_r['npv_pct']:.2f}%",
+                               "Dollar FV":  f"${wo_r['npv_dollar']:,.2f}"})
+            st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
 
-            st.dataframe(
-                pd.DataFrame(comp_rows),
-                use_container_width=True,
-                hide_index=True,
-            )
+            discount = min(s["npv_pct"] for s in singles) - wo_r["npv_pct"]
+            st.caption(f"Worst-of discount vs best single underlier: **{discount:.2f}%**")
 
-            best_single_npv = min(s["npv_pct"] for s in singles)
-            discount = best_single_npv - wo_r["npv_pct"]
-            st.caption(
-                f"Worst-of discount vs best single-underlier: **{discount:.2f}%** — "
-                "the additional risk the investor bears in exchange for a higher coupon."
-            )
-
-            st.divider()
-            st.markdown("##### Correlation Matrix")
-            corr_df = pd.DataFrame(
-                wo_n["correlation_matrix"],
-                index=wo_n["underliers"],
-                columns=wo_n["underliers"],
-            )
+            st.markdown("<hr>", unsafe_allow_html=True)
+            _label("Correlation Matrix")
+            corr_df = pd.DataFrame(wo_n["correlation_matrix"],
+                                   index=wo_n["underliers"], columns=wo_n["underliers"])
             st.dataframe(corr_df.style.format("{:.2f}"), use_container_width=True)
-
-            st.divider()
-            st.markdown("##### Term Sheet Summary")
-            obs = wo_n["observation_dates"]
-            cs  = wo_n.get("credit_spread", 0)
-            summary = {
-                "Basket":             " / ".join(wo_n["underliers"]),
-                "Spots":              "  ·  ".join(f"${s:,.2f}" for s in wo_n["spots"]),
-                "Face Value":         f"${wo_n['face_value']:,.0f}",
-                "Issue Date":         wo_n["issue_date"],
-                "Maturity Date":      wo_n["maturity_date"],
-                "Observation Dates":  f"{len(obs)} dates  ({obs[0]} → {obs[-1]})",
-                "Autocall Barrier":   f"{wo_n['autocall_barrier']*100:.0f}% of each spot",
-                "Coupon Barrier":     f"{wo_n['coupon_barrier']*100:.0f}% of each spot",
-                "Knock-In Barrier":   f"{wo_n['knockin_barrier']*100:.0f}% of each spot",
-                "Annual Coupon":      f"{wo_n['coupon_rate']*100:.2f}%",
-                "Risk-Free Rate":     f"{wo_n['risk_free_rate']*100:.3f}%",
-                "Credit Spread":      f"{cs*10000:.0f} bps" if cs else "None",
-                "MC Paths":           f"{wo_r['n_paths']:,}",
-            }
-            st.dataframe(
-                pd.DataFrame.from_dict(summary, orient="index", columns=["Value"]),
-                use_container_width=True,
-            )
-
         else:
-            st.info(
-                "Configure the basket and note parameters on the left, "
-                "then click **Price Worst-Of**."
-            )
+            st.info("Configure the basket and parameters, then click **Price Worst-Of**.")
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ===========================================================================
-# TAB 5 — PORTFOLIO  (§10 — mark-to-model vs issuer marks)
+# TAB 5 — PORTFOLIO
 # ===========================================================================
 
 with tab_port:
-    st.markdown("#### Portfolio Mark-to-Model")
-    st.caption(
-        "Prices every note in data/portfolio.json against the model and compares to issuer marks.  "
-        "Thresholds (§10):  |dev| ≤ 100 bps = Within Model Noise  ·  ≤ 300 bps = Review  ·  "
-        "> 300 bps = Flag"
-    )
-
     PORTFOLIO_PATH = Path(__file__).parent / "data" / "portfolio.json"
 
-    col_po1, col_po2 = st.columns([0.28, 0.72])
+    col_po1, col_po2 = st.columns([0.22, 0.78])
 
     with col_po1:
-        port_paths = st.select_slider(
-            "MC Paths per Note",
-            options=[5_000, 10_000, 30_000, 50_000],
-            value=10_000,
-            format_func=lambda x: f"{x:,}",
-            key="po_npaths",
-        )
+        _label("Settings")
+        port_paths = st.select_slider("MC Paths per Note",
+                                      options=[5_000, 10_000, 30_000, 50_000],
+                                      value=10_000, format_func=lambda x: f"{x:,}", key="po_npaths")
         port_btn = st.button("Run Portfolio Pricing", type="primary",
                              use_container_width=True, key="po_btn")
-
         if PORTFOLIO_PATH.exists():
             try:
                 import json as _json
                 _pdata = _json.loads(PORTFOLIO_PATH.read_text())
-                _n = len([_note for _note in _pdata.get('notes', [])
-                          if not _note.get('_comment')])
-                st.caption(f"Portfolio: **{_n} notes** loaded from data/portfolio.json")
+                _n = len([_nt for _nt in _pdata.get('notes', []) if not _nt.get('_comment')])
+                st.caption(f"**{_n} notes** in portfolio.json")
             except Exception:
                 pass
         else:
             st.warning("data/portfolio.json not found.")
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+        st.caption(
+            "Flags (§10):  \n"
+            "**OK** — |dev| ≤ 100 bps  \n"
+            "**Review** — ≤ 300 bps  \n"
+            "**Flag ⚠** — > 300 bps"
+        )
 
     with col_po2:
         if port_btn:
@@ -880,16 +796,14 @@ with tab_port:
                 with st.spinner(f"Pricing portfolio at {port_paths:,} paths/note …"):
                     try:
                         from pricer.portfolio import price_portfolio
-                        port_results = price_portfolio(
-                            str(PORTFOLIO_PATH), n_paths=port_paths
-                        )
+                        port_results = price_portfolio(str(PORTFOLIO_PATH), n_paths=port_paths)
                         st.session_state["port_results"] = port_results
                     except Exception as e:
                         st.error(f"Portfolio pricing failed: {e}")
                         st.session_state.pop("port_results", None)
 
         if "port_results" in st.session_state:
-            rows = st.session_state["port_results"]
+            rows    = st.session_state["port_results"]
             ok_rows = [r for r in rows if 'error' not in r]
 
             if ok_rows:
@@ -898,26 +812,21 @@ with tab_port:
                 flagged    = sum(1 for r in ok_rows if r['flag'] not in ('OK', 'N/A'))
                 total_pnl  = sum(r['pnl_vs_purchase'] or 0 for r in ok_rows)
 
-                sm1, sm2, sm3, sm4 = st.columns(4)
-                sm1.metric("Notes Priced",           str(len(ok_rows)))
-                sm2.metric("Wtd Avg Model FV",        f"{avg_model:.2f}%")
-                sm3.metric("Review / Flag",           str(flagged))
-                sm4.metric("Total P&L vs Purchase",   f"${total_pnl:+,.0f}")
-
-                st.divider()
+                pm1, pm2, pm3, pm4 = st.columns(4)
+                pm1.metric("Notes Priced",        str(len(ok_rows)))
+                pm2.metric("Wtd Avg Model FV",    f"{avg_model:.2f}%")
+                pm3.metric("Review / Flag",        str(flagged))
+                pm4.metric("P&L vs Purchase",      f"${total_pnl:+,.0f}")
+                st.markdown("<hr>", unsafe_allow_html=True)
 
             table_rows = []
             for r in rows:
                 if 'error' in r:
-                    table_rows.append({
-                        "CUSIP": r['cusip'], "Issuer": r['issuer'],
-                        "Structure": "ERROR", "Underlier(s)": r['underliers'],
-                        "Issuer Mark": "—", "Model FV": "—",
-                        "Dev (bps)": "—", "SE (bps)": "—", "Flag": "ERROR",
-                    })
+                    table_rows.append({"CUSIP": r['cusip'], "Issuer": r['issuer'],
+                                       "Structure": "ERROR", "Underlier(s)": r['underliers'],
+                                       "Issuer Mark": "—", "Model FV": "—",
+                                       "Dev (bps)": "—", "SE (bps)": "—", "Flag": "ERROR"})
                 else:
-                    dev_str = (f"{r['deviation_bps']:+.0f}" if r['deviation_bps'] is not None
-                               else "—")
                     table_rows.append({
                         "CUSIP":        r['cusip'],
                         "Issuer":       r['issuer'],
@@ -925,152 +834,141 @@ with tab_port:
                         "Underlier(s)": r['underliers'],
                         "Issuer Mark":  f"{r['issuer_mark']:.2f}%" if r['issuer_mark'] else "—",
                         "Model FV":     f"{r['model_fv']:.2f}%",
-                        "Dev (bps)":    dev_str,
+                        "Dev (bps)":    f"{r['deviation_bps']:+.0f}" if r['deviation_bps'] is not None else "—",
                         "SE (bps)":     f"±{r.get('se_bps', 0):.1f}",
                         "Flag":         r['flag'],
                     })
-
-            st.dataframe(
-                pd.DataFrame(table_rows),
-                use_container_width=True,
-                hide_index=True,
-            )
-            st.caption(
-                "Deviation = (Model FV − Issuer Mark) × 100.  "
-                "Positive = model prices the note richer than the issuer.  "
-                "SE = Monte Carlo standard error (1σ)."
-            )
-
+            st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
+            st.caption("Deviation = (Model FV − Issuer Mark) × 100.  Positive = model prices richer than issuer.")
         else:
-            st.info(
-                "Click **Run Portfolio Pricing** to price all notes in data/portfolio.json "
-                "and compare against issuer marks."
-            )
+            st.info("Click **Run Portfolio Pricing** to price all notes and compare against issuer marks.")
 
 # ===========================================================================
-# TAB 6 — OFFERING EVALUATOR  (§6.4)
+# TAB 6 — OFFERING EVALUATOR
 # ===========================================================================
 
 with tab_offer:
-    st.markdown("#### New Offering Evaluator")
-    st.caption(
-        "Enter the term sheet for a note being offered in the primary market. "
-        "The model prices it independently and compares to the issuer's offer price. "
-        "Buy signal: model FV > offer + 1.5%  ·  Skip: model FV < offer − 1.5%  ·  Gray Zone: within 1.5% (§6.4)"
-    )
+    col_oa, col_ob, col_oout = st.columns([1, 1, 1.6])
 
-    col_oe_in, col_oe_out = st.columns([1, 1.6])
-
-    with col_oe_in:
-        oe_type = st.radio("Structure", ["Single Underlier", "Worst-Of Basket"],
+    # ── Column A: Structure & underlier(s) ──────────────────────────────
+    with col_oa:
+        _label("Structure")
+        oe_type = st.radio("Type", ["Single Underlier", "Worst-Of Basket"],
                            horizontal=True, key="oe_type")
 
-        st.markdown("#### Term Sheet")
-
         if oe_type == "Single Underlier":
-            oe_ul  = st.selectbox("Underlier", UNDERLIERS, key="oe_ul")
-            oe_sp  = st.number_input("Spot ($)", value=float(DEFAULT_SPOTS[oe_ul]),
-                                     min_value=1.0, step=0.01, format="%.2f",
-                                     key=f"oe_sp_{oe_ul}")
+            _label("Underlier")
+            oe_ul = st.selectbox("Ticker", UNDERLIERS, key="oe_ul", label_visibility="collapsed")
+            oe_sp = st.number_input("Spot ($)", value=float(DEFAULT_SPOTS[oe_ul]),
+                                    min_value=1.0, step=0.01, format="%.2f", key=f"oe_sp_{oe_ul}")
         else:
             oe_n_assets = st.radio("Basket Size", [2, 3], horizontal=True, key="oe_n",
                                    format_func=lambda x: f"{x} Underliers")
-            oe_t1 = st.selectbox("Underlier 1", UNDERLIERS, index=0, key="oe_t1")
-            oe_s1 = st.number_input("Spot 1 ($)", value=float(DEFAULT_SPOTS[oe_t1]),
-                                     min_value=1.0, step=0.01, format="%.2f",
-                                     key=f"oe_s1_{oe_t1}")
-            oe_t2 = st.selectbox("Underlier 2", UNDERLIERS, index=1, key="oe_t2")
-            oe_s2 = st.number_input("Spot 2 ($)", value=float(DEFAULT_SPOTS[oe_t2]),
-                                     min_value=1.0, step=0.01, format="%.2f",
-                                     key=f"oe_s2_{oe_t2}")
-            oe_t3, oe_s3 = None, None
+            oa1, oa2 = st.columns(2)
+            with oa1:
+                oe_t1 = st.selectbox("Asset 1", UNDERLIERS, index=0, key="oe_t1")
+            with oa2:
+                oe_s1 = st.number_input("Spot 1", value=float(DEFAULT_SPOTS[oe_t1]),
+                                        min_value=1.0, step=0.01, format="%.2f", key=f"oe_s1_{oe_t1}")
+            ob1, ob2 = st.columns(2)
+            with ob1:
+                oe_t2 = st.selectbox("Asset 2", UNDERLIERS, index=1, key="oe_t2")
+            with ob2:
+                oe_s2 = st.number_input("Spot 2", value=float(DEFAULT_SPOTS[oe_t2]),
+                                        min_value=1.0, step=0.01, format="%.2f", key=f"oe_s2_{oe_t2}")
+            oe_t3 = oe_s3 = None
             if oe_n_assets == 3:
-                oe_t3 = st.selectbox("Underlier 3", UNDERLIERS, index=2, key="oe_t3")
-                oe_s3 = st.number_input("Spot 3 ($)", value=float(DEFAULT_SPOTS[oe_t3]),
-                                         min_value=1.0, step=0.01, format="%.2f",
-                                         key=f"oe_s3_{oe_t3}")
-            oe_rho12 = st.slider("ρ (Asset 1 / 2)", -0.99, 0.99, 0.55, step=0.01, key="oe_r12")
+                oc1, oc2 = st.columns(2)
+                with oc1:
+                    oe_t3 = st.selectbox("Asset 3", UNDERLIERS, index=2, key="oe_t3")
+                with oc2:
+                    oe_s3 = st.number_input("Spot 3", value=float(DEFAULT_SPOTS[oe_t3]),
+                                            min_value=1.0, step=0.01, format="%.2f", key=f"oe_s3_{oe_t3}")
+            oe_rho12 = st.slider("ρ (1/2)", -0.99, 0.99, 0.55, step=0.01, key="oe_r12")
             oe_rho13 = oe_rho23 = 0.0
             if oe_n_assets == 3:
-                oe_rho13 = st.slider("ρ (Asset 1 / 3)", -0.99, 0.99, 0.50, step=0.01, key="oe_r13")
-                oe_rho23 = st.slider("ρ (Asset 2 / 3)", -0.99, 0.99, 0.50, step=0.01, key="oe_r23")
+                oe_rho13 = st.slider("ρ (1/3)", -0.99, 0.99, 0.50, step=0.01, key="oe_r13")
+                oe_rho23 = st.slider("ρ (2/3)", -0.99, 0.99, 0.50, step=0.01, key="oe_r23")
 
-        st.divider()
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Schedule")
+        od1, od2 = st.columns(2)
+        with od1:
+            oe_issue = st.date_input("Issue Date", value=date(2026, 6, 3), key="oe_issue")
+        with od2:
+            oe_mat   = st.date_input("Maturity Date", value=date(2027, 12, 3), key="oe_mat")
 
-        oe_face  = st.number_input("Face Value ($)", value=1000.0, step=100.0, key="oe_face")
-        oe_issue = st.date_input("Issue Date",    value=date(2026, 6, 3),  key="oe_issue")
-        oe_mat   = st.date_input("Maturity Date", value=date(2027, 12, 3), key="oe_mat")
-        oe_freq  = st.selectbox("Observation Frequency",
-                                 ["Quarterly", "Monthly", "Semi-Annual"], key="oe_freq")
+        oe_freq = st.selectbox("Observation Frequency",
+                               ["Quarterly", "Monthly", "Semi-Annual"], key="oe_freq")
 
-        st.divider()
+    # ── Column B: Barriers, rates & offer price ──────────────────────────
+    with col_ob:
+        oe_face = st.number_input("Face Value ($)", value=1000.0, step=100.0, key="oe_face")
 
+        _label("Barrier Structure")
         oe_autocall = st.slider("Autocall Barrier", 80, 115, 100, step=5, format="%d%%", key="oe_autocall")
         oe_coupon   = st.slider("Coupon Barrier",   50,  95,  75, step=5, format="%d%%", key="oe_coupon")
         oe_knockin  = st.slider("Knock-In Barrier", 40,  80,  65, step=5, format="%d%%", key="oe_knockin")
 
-        st.divider()
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Rates")
 
-        oe_cpn    = st.number_input("Annual Coupon (%)", value=12.0, step=0.5, key="oe_cpn")
-        oe_rfr    = st.number_input("Risk-Free Rate (%)", value=3.75, step=0.25, key="oe_rfr")
-        oe_cs     = st.number_input("Credit Spread (bps)", value=100, step=5,
-                                     min_value=0, max_value=500, key="oe_cs",
-                                     help="Issuer credit spread. 100 bps is typical for A-rated bank issuers.")
-        oe_offer  = st.number_input(
-            "Issuer Offer Price (% of Face)",
-            min_value=50.0, max_value=110.0, value=100.0, step=0.1,
-            key="oe_offer",
-            help="New issuances are almost always offered at par (100%). "
-                 "Use actual secondary price for seasoned notes.",
-        )
-        oe_paths  = st.select_slider(
-            "Monte Carlo Paths",
-            options=[10_000, 50_000, 100_000],
-            value=50_000,
-            format_func=lambda x: f"{x:,}",
-            key="oe_npaths",
+        oe1, oe2 = st.columns(2)
+        with oe1:
+            oe_cpn = st.number_input("Coupon (%)", value=12.0, step=0.5, key="oe_cpn")
+        with oe2:
+            oe_rfr = st.number_input("RFR (%)", value=3.75, step=0.25, key="oe_rfr")
+
+        oe3, oe4 = st.columns(2)
+        with oe3:
+            oe_cs = st.number_input("Credit Spread (bps)", value=100, step=5,
+                                    min_value=0, max_value=500, key="oe_cs")
+        with oe4:
+            oe_paths = st.select_slider("MC Paths", options=[10_000, 50_000, 100_000],
+                                        value=50_000, format_func=lambda x: f"{x:,}", key="oe_npaths")
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+        _label("Offer Price")
+        oe_offer = st.number_input(
+            "Issuer Offer (% of Face)", min_value=50.0, max_value=110.0,
+            value=100.0, step=0.1, key="oe_offer",
+            help="New issuances are almost always at par (100%). Use secondary price for seasoned notes.",
         )
 
         oe_btn = st.button("Evaluate Offering", type="primary",
                            use_container_width=True, key="oe_btn")
 
-    with col_oe_out:
-        st.markdown("#### Evaluation Results")
+    # ── Column C: Evaluation result ──────────────────────────────────────
+    with col_oout:
+        st.markdown('<div class="results-panel">', unsafe_allow_html=True)
+        _label("Evaluation")
 
         if oe_btn:
-            # Build the note dict
             if oe_type == "Single Underlier":
-                oe_note = _build_note_dict(
-                    oe_ul, oe_sp, oe_face, oe_issue, oe_mat,
-                    oe_freq, oe_autocall, oe_coupon, oe_knockin, oe_cpn, oe_rfr,
-                    credit_spread_bps=oe_cs,
-                )
+                oe_note = _build_note_dict(oe_ul, oe_sp, oe_face, oe_issue, oe_mat,
+                                           oe_freq, oe_autocall, oe_coupon, oe_knockin,
+                                           oe_cpn, oe_rfr, credit_spread_bps=oe_cs)
             else:
                 if oe_n_assets == 2:
                     oe_tickers = [oe_t1, oe_t2]; oe_spots = [oe_s1, oe_s2]
                     oe_corr = [[1.0, oe_rho12], [oe_rho12, 1.0]]
                 else:
-                    oe_tickers = [oe_t1, oe_t2, oe_t3]
-                    oe_spots   = [oe_s1, oe_s2, oe_s3]
-                    oe_corr    = [
-                        [1.0,       oe_rho12, oe_rho13],
-                        [oe_rho12,  1.0,      oe_rho23],
-                        [oe_rho13,  oe_rho23, 1.0     ],
-                    ]
-                oe_note = _build_wo_note_dict(
-                    oe_tickers, oe_spots, oe_corr, oe_face, oe_issue, oe_mat,
-                    oe_freq, oe_autocall, oe_coupon, oe_knockin, oe_cpn, oe_rfr,
-                    credit_spread_bps=oe_cs,
-                )
+                    oe_tickers = [oe_t1, oe_t2, oe_t3]; oe_spots = [oe_s1, oe_s2, oe_s3]
+                    oe_corr = [[1.0, oe_rho12, oe_rho13],
+                               [oe_rho12, 1.0, oe_rho23],
+                               [oe_rho13, oe_rho23, 1.0]]
+                oe_note = _build_wo_note_dict(oe_tickers, oe_spots, oe_corr, oe_face,
+                                              oe_issue, oe_mat, oe_freq, oe_autocall,
+                                              oe_coupon, oe_knockin, oe_cpn, oe_rfr,
+                                              credit_spread_bps=oe_cs)
 
             if not oe_note["observation_dates"]:
                 st.error("No observation dates — check Maturity Date is after Issue Date.")
             else:
-                with st.spinner(f"Evaluating offering · {oe_paths:,} paths …"):
+                with st.spinner(f"Evaluating · {oe_paths:,} paths …"):
                     try:
                         from pricer.offering import evaluate_offering
-                        oe_result = evaluate_offering(oe_note, offer_pct=oe_offer,
-                                                      n_paths=oe_paths)
+                        oe_result = evaluate_offering(oe_note, offer_pct=oe_offer, n_paths=oe_paths)
                         st.session_state["oe_result"] = oe_result
                     except Exception as e:
                         st.error(f"Evaluation failed: {e}")
@@ -1078,66 +976,41 @@ with tab_offer:
 
         if "oe_result" in st.session_state:
             oe_r = st.session_state["oe_result"]
-
-            # ── Recommendation banner ──
-            rec   = oe_r['recommendation']
-            conf  = oe_r['confidence']
-            dev   = oe_r['deviation_bps']
-            se    = oe_r['se_bps']
+            rec  = oe_r['recommendation']
+            dev  = oe_r['deviation_bps']
+            se   = oe_r['se_bps']
 
             st.markdown(
-                f"<div style='background:#f8fafc;border:1px solid #e2e8f0;"
-                f"border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1rem;'>"
-                f"<p style='margin:0 0 0.5rem;font-size:0.75rem;font-weight:600;"
-                f"text-transform:uppercase;letter-spacing:0.06em;color:#64748b;'>"
-                f"Model Recommendation</p>"
+                f"<div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;"
+                f"padding:1rem 1.25rem;margin-bottom:0.75rem;'>"
+                f"<p class='section-label'>Model Recommendation</p>"
                 f"{_recommendation_badge(rec)}"
-                f"<p style='margin:0.75rem 0 0;font-size:0.875rem;color:#374151;'>"
-                f"Confidence: <strong>{conf}</strong> — deviation ({dev:+.0f} bps) "
-                f"{'is distinguishable from' if conf == 'High' else 'is within'} "
-                f"MC noise band (±{se*2:.0f} bps, 2σ).</p>"
-                f"</div>",
+                f"<p style='margin:0.6rem 0 0;font-size:0.85rem;color:#374151;'>"
+                f"Confidence: <strong>{oe_r['confidence']}</strong> — deviation ({dev:+.0f} bps) "
+                f"{'exceeds' if oe_r['confidence'] == 'High' else 'is within'} "
+                f"the 2σ MC noise band (±{se*2:.0f} bps).</p></div>",
                 unsafe_allow_html=True,
             )
 
-            # ── Key metrics ──
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Model Fair Value",  f"{oe_r['model_fv']:.2f}%",
-                      delta=f"{oe_r['deviation_pct']:+.2f}% vs offer")
-            m2.metric("Issuer Offer",      f"{oe_r['offer_pct']:.2f}%")
-            m3.metric("Deviation",
-                      f"{dev:+.0f} bps",
-                      help="+ve = model prices it richer than issuer (note is cheap to buy).")
+            om1, om2, om3 = st.columns(3)
+            om1.metric("Model Fair Value", f"{oe_r['model_fv']:.2f}%",
+                       delta=f"{oe_r['deviation_pct']:+.2f}% vs offer")
+            om2.metric("Issuer Offer",     f"{oe_r['offer_pct']:.2f}%")
+            om3.metric("Deviation",        f"{dev:+.0f} bps")
 
-            m4, m5 = st.columns(2)
-            m4.metric("Model FV ($)",     f"${oe_r['model_dollar']:,.2f}")
-            m5.metric("MC Std Error",     f"±{se:.1f} bps")
+            om4, om5 = st.columns(2)
+            om4.metric("Model FV ($)",    f"${oe_r['model_dollar']:,.2f}")
+            om5.metric("MC Std Error",    f"±{se:.1f} bps")
 
-            st.divider()
-            st.markdown("##### Interpretation")
-            st.markdown(
-                f"The model prices this note at **{oe_r['model_fv']:.2f}%** of face, "
-                f"versus the issuer's offer of **{oe_r['offer_pct']:.2f}%** of face. "
-                f"This is a deviation of **{dev:+.0f} bps** ({oe_r['deviation_pct']:+.3f}%).\n\n"
-                f"- **Buy** if deviation > +150 bps (note is cheap vs model). "
-                f"Currently: {'+' if dev > 150 else ''}{'✓ Buy threshold met' if dev > 150 else '✗ Below Buy threshold'}.\n"
-                f"- **Skip** if deviation < −150 bps (note is expensive vs model). "
-                f"Currently: {'✓ Skip threshold met' if dev < -150 else '✗ Above Skip threshold'}.\n"
-                f"- **Gray Zone** ({abs(dev):.0f} bps deviation within the ±150 bps band): "
-                f"{'within noise — no strong signal.' if rec == 'Gray Zone' else 'outside band — signal present.'}"
+            st.markdown("<hr>", unsafe_allow_html=True)
+            st.caption(
+                f"**Buy** if deviation > +150 bps  ·  **Skip** if < −150 bps  ·  "
+                f"**Gray Zone** within ±150 bps.  Current: {dev:+.0f} bps → **{rec}**."
             )
-
-            if oe_cs > 0:
-                st.info(
-                    f"Credit spread of {oe_cs} bps applied to discount curve (§6.1). "
-                    "Without the credit adjustment, fair value would be approximately "
-                    f"{oe_r['model_fv'] + oe_cs * len(oe_note.get('observation_dates', [])) / 100 * 0.05:.2f}% "
-                    "(rough estimate — re-run with credit_spread=0 for exact comparison).",
-                    icon="ℹ️",
-                )
-
         else:
             st.info(
-                "Enter the offering's term sheet on the left and click "
-                "**Evaluate Offering** to get a model-based buy/skip recommendation."
+                "Enter the term sheet in the two columns on the left, "
+                "set the issuer's offer price, and click **Evaluate Offering**."
             )
+
+        st.markdown('</div>', unsafe_allow_html=True)
