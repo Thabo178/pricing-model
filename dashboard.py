@@ -17,9 +17,12 @@ import streamlit as st
 # Page config + custom CSS
 # ---------------------------------------------------------------------------
 
-def _make_hc_icon():
+import base64
+from io import BytesIO
+
+def _hc_favicon_b64() -> str:
     from PIL import Image, ImageDraw, ImageFont
-    img  = Image.new("RGB", (64, 64), color="#1e3a5f")
+    img  = Image.new("RGBA", (64, 64), (30, 58, 95, 255))
     draw = ImageDraw.Draw(img)
     try:
         font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 30)
@@ -28,18 +31,22 @@ def _make_hc_icon():
     bbox = draw.textbbox((0, 0), "HC", font=font)
     x = (64 - (bbox[2] - bbox[0])) // 2 - bbox[0]
     y = (64 - (bbox[3] - bbox[1])) // 2 - bbox[1]
-    draw.text((x, y), "HC", fill="#ffffff", font=font)
-    return img
+    draw.text((x, y), "HC", fill=(255, 255, 255, 255), font=font)
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode()
+
+_FAVICON = _hc_favicon_b64()
 
 st.set_page_config(
     page_title="Structured Note Pricer | Ryan Hysmith",
-    page_icon=_make_hc_icon(),
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 st.markdown(
-    """
+    f"""
+<link rel="shortcut icon" type="image/png" href="data:image/png;base64,{_FAVICON}">
 <style>
 /* ── Global ── */
 html, body, [class*="css"] {
