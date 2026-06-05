@@ -17,8 +17,23 @@ import streamlit as st
 # Page config + custom CSS
 # ---------------------------------------------------------------------------
 
+def _make_hc_icon():
+    from PIL import Image, ImageDraw, ImageFont
+    img  = Image.new("RGB", (64, 64), color="#1e3a5f")
+    draw = ImageDraw.Draw(img)
+    try:
+        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 30)
+    except Exception:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), "HC", font=font)
+    x = (64 - (bbox[2] - bbox[0])) // 2 - bbox[0]
+    y = (64 - (bbox[3] - bbox[1])) // 2 - bbox[1]
+    draw.text((x, y), "HC", fill="#ffffff", font=font)
+    return img
+
 st.set_page_config(
     page_title="Structured Note Pricer | Ryan Hysmith",
+    page_icon=_make_hc_icon(),
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -316,9 +331,9 @@ def _label(text):
 # ---------------------------------------------------------------------------
 
 st.markdown(
-    "<h1 style='color:#1e3a5f;font-weight:800;letter-spacing:-0.02em;'>"
+    "<h1 style='color:#1e3a5f;font-weight:800;letter-spacing:-0.02em;margin-top:0.5rem;'>"
     "Structured Note Pricer</h1>"
-    "<p style='color:#94a3b8;font-size:0.82rem;margin-top:-0.1rem;margin-bottom:0.5rem;'>"
+    "<p style='color:#94a3b8;font-size:0.82rem;margin-top:0.1rem;margin-bottom:0.5rem;'>"
     "Phoenix Autocallable &nbsp;·&nbsp; Single-Asset &amp; Worst-Of &nbsp;·&nbsp; "
     "Heston Stochastic Volatility &nbsp;·&nbsp; ORATS Live Data</p>",
     unsafe_allow_html=True,
